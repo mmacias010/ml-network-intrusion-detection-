@@ -1,7 +1,7 @@
 # Machine Learning for Network Intrusion Detection
 
 **CS 4361 — Machine Learning, Spring 2026**
-**Team:** Miranda Macias, Jocelyn Zamora, Deniss Garcia
+**Team:** Miranda Macias, Joselyn Zamora, Deniss Garcia
 
 This project builds and evaluates machine learning models for binary classification of network traffic (normal vs. cyber attack) using the CIC-IDS2017 dataset. We compared four model architectures across three experimental setups of increasing realism and discovered that standard ML evaluation dramatically overstates real-world performance.
 
