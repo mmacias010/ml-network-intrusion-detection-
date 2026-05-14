@@ -33,6 +33,8 @@ Reference: https://arindam-dey.medium.com/a-gentle-introduction-to-active-learni
 """
 
 import time
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
@@ -40,21 +42,24 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 
 # ---------------- config ----------------
+PROJECT_ROOT  = Path(__file__).resolve().parents[2]
+SPLITS_DIR    = PROJECT_ROOT / "data" / "splits"
+RESULTS_PATH  = Path(__file__).resolve().with_name("active_learning_results.csv")
 RANDOM_STATE  = 42
 N_TO_LABEL    = 500   # how many Tuesday samples we "label" and add to training
 CLASS_NAMES   = ["normal", "attack"]
 EPS           = 1e-12 # small constant to avoid log(0)
 
-# ---------------- 1. load the Monday/Tuesday split saved by member2_temporal_split.py ----------------
-print("Loading Monday/Tuesday split from saved .npy files...")
-X_train = np.load("X_train_mon.npy")
-y_train = np.load("y_train_mon.npy")
-X_test  = np.load("X_test_tue.npy")
-y_test  = np.load("y_test_tue.npy")
+# ---------------- 1. load the Tuesday/Wednesday split saved by member2_temporal_split.py ----------------
+print("Loading Tuesday/Wednesday split from saved .npy files...")
+X_train = np.load(SPLITS_DIR / "x_train_tue.npy")
+y_train = np.load(SPLITS_DIR / "y_train_tue.npy")
+X_test  = np.load(SPLITS_DIR / "x_test_wed.npy")
+y_test  = np.load(SPLITS_DIR / "y_test_wed.npy")
 
-print(f"  Monday (train): {X_train.shape[0]:,} rows   "
+print(f"  Tuesday (train): {X_train.shape[0]:,} rows   "
       f"normal: {(y_train==0).sum():,}   attack: {(y_train==1).sum():,}")
-print(f"  Tuesday (pool): {X_test.shape[0]:,} rows   "
+print(f"  Wednesday (pool): {X_test.shape[0]:,} rows   "
       f"normal: {(y_test==0).sum():,}   attack: {(y_test==1).sum():,}")
 
 # ---------------- 2. scale ----------------
@@ -173,8 +178,8 @@ print("ACTIVE LEARNING SUMMARY")
 print("="*70)
 summary = pd.DataFrame(results).set_index("scenario")
 print(summary.round(4))
-summary.to_csv("member2_active_learning_results.csv")
-print("\nSaved -> member2_active_learning_results.csv")
+summary.to_csv(RESULTS_PATH)
+print(f"\nSaved -> {RESULTS_PATH}")
 
 print("""
 Key comparison:

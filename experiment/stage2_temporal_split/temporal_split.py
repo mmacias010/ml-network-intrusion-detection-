@@ -21,6 +21,8 @@ classifier the attack class. Set SETUP below based on professor's response:
 """
 
 import time
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
@@ -32,11 +34,16 @@ from sklearn.metrics import classification_report, confusion_matrix, accuracy_sc
 # =========================================================================
 # CONFIG -- edit SETUP based on what the professor says
 # =========================================================================
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+CLEANED_DATA_DIR = PROJECT_ROOT / "data" / "cleaned"
+SPLITS_DIR = PROJECT_ROOT / "data" / "splits"
+RESULTS_PATH = Path(__file__).resolve().with_name("temporal_results.csv")
+
 SETUP = "tuesday_wednesday"   # train on Tuesday, test on Wednesday
 
-MONDAY_PATH    = "clean_Monday-WorkingHours.pcap_ISCX.csv"
-TUESDAY_PATH   = "clean_Tuesday-WorkingHours.pcap_ISCX.csv"
-WEDNESDAY_PATH = "clean_Wednesday-workingHours.pcap_ISCX.csv"
+MONDAY_PATH    = CLEANED_DATA_DIR / "clean_Monday-WorkingHours.pcap_ISCX.csv"
+TUESDAY_PATH   = CLEANED_DATA_DIR / "clean_Tuesday-WorkingHours.pcap_ISCX.csv"
+WEDNESDAY_PATH = CLEANED_DATA_DIR / "clean_Wednesday-workingHours.pcap_ISCX.csv"
 
 TUESDAY_MORNING_FRAC = 0.20   # what fraction of Tuesday goes into training
                               # (used only for the "monday_plus_tuesday_morning" setup)
@@ -52,7 +59,12 @@ CLASS_NAMES  = ["normal", "attack"]
 # =========================================================================
 def load_and_label(path):
     """Load a per-day CSV and convert Label (string) -> Attack_Flag (0/1)."""
-    print(f"  Loading {path}...")
+    print(f"  Loading {path.name}...")
+    if not path.exists():
+        raise FileNotFoundError(
+            f"Missing required dataset file: {path}\n"
+            "Place the full cleaned CSV dataset files in data/cleaned/."
+        )
     df = pd.read_csv(path)
     df.columns = df.columns.str.strip()  # CIC files often have leading spaces
 
@@ -163,12 +175,13 @@ print(f"\n  Train final -> {X_train.shape[0]:,} rows   "
 print(f"  Test  final -> {X_test.shape[0]:,} rows   "
       f"normal: {(y_test==0).sum():,}   attack: {(y_test==1).sum():,}")
 
-# Save for Member 3
-np.save("X_train_mon.npy", X_train)
-np.save("y_train_mon.npy", y_train)
-np.save("X_test_tue.npy",  X_test)
-np.save("y_test_tue.npy",  y_test)
-print("  saved -> X_train_mon.npy, y_train_mon.npy, X_test_tue.npy, y_test_tue.npy")
+# Save for Stage 3
+SPLITS_DIR.mkdir(parents=True, exist_ok=True)
+np.save(SPLITS_DIR / "x_train_tue.npy", X_train)
+np.save(SPLITS_DIR / "y_train_tue.npy", y_train)
+np.save(SPLITS_DIR / "x_test_wed.npy",  X_test)
+np.save(SPLITS_DIR / "y_test_wed.npy",  y_test)
+print(f"  saved -> {SPLITS_DIR / 'x_train_tue.npy'}, {SPLITS_DIR / 'y_train_tue.npy'}, {SPLITS_DIR / 'x_test_wed.npy'}, {SPLITS_DIR / 'y_test_wed.npy'}")
 
 # =========================================================================
 # SCALE + TRAIN + EVAL
@@ -208,5 +221,5 @@ print(f"TEMPORAL SPLIT SUMMARY -- setup: {SETUP}")
 print("="*90)
 summary = pd.DataFrame(results).set_index("model")
 print(summary.round(4))
-summary.to_csv("member2_temporal_results.csv")
-print("\nSaved -> member2_temporal_results.csv")
+summary.to_csv(RESULTS_PATH)
+print(f"\nSaved -> {RESULTS_PATH}")
