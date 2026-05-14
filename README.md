@@ -56,7 +56,6 @@ The dataset files are not included in this repository due to size (~2 GB total).
 ```
 .
 ├── README.md
-├── REPORT_ML.pdf                              # Final team report
 ├── scripts/
 │   ├── member2_classical_models.py            # Stage 1: DT, LR, kNN on random split
 │   ├── member2_temporal_split.py              # Stage 2: Tuesday → Wednesday
@@ -70,7 +69,7 @@ The dataset files are not included in this repository due to size (~2 GB total).
 │   ├── member3_stage1_results.csv             # NN Stage 1 results
 │   └── member3_temporal_results.csv           # NN Stage 2 results
 └── writeups/
-    └── Miranda_Macias_Writeup.docx            # Member 2 individual writeup
+    └── REPORT_ML_final.docx # Everyones writeups combined
 ```
 
 ## Methodology
